@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#000000" />
+  <title>GatePass // Event Ops</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23fff'/%3E%3Cpath d='M9 24V15a7 7 0 0 1 14 0v9M7 24h18' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='16' cy='15' r='1.8' fill='%23000'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Logo symbol (reused in nav + ticket) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="logo" viewBox="0 0 32 32">
+      <rect width="32" height="32" rx="9" fill="#fff" />
+      <path d="M9 24V15a7 7 0 0 1 14 0v9M7 24h18" fill="none" stroke="#000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+      <circle cx="16" cy="15" r="1.8" fill="#000" />
+    </symbol>
+  </svg>
+
+  <!-- ============ Top navigation ============ -->
+  <header class="topbar">
+    <div class="topbar__inner">
+      <div class="brand">
+        <svg class="brand__logo" aria-hidden="true"><use href="#logo" /></svg>
+        <span class="brand__name">GatePass <span class="brand__sep">//</span> <span class="brand__sub">Event Ops</span></span>
+      </div>
+
+      <nav class="tabs" role="tablist" aria-label="Sections">
+        <button class="tab is-active" role="tab" id="tab-register" aria-selected="true" aria-controls="view-register" data-tab="register">
+          Student Pass Registration
+        </button>
+        <button class="tab" role="tab" id="tab-admin" aria-selected="false" aria-controls="view-admin" data-tab="admin">
+          Gate Verification Desk <span class="tab__tag">Admin</span>
+        </button>
+      </nav>
+
+      <div class="conn conn--connecting" id="conn-badge" role="status" aria-live="polite">
+        <span class="conn__dot"></span><span id="conn-text">Connecting…</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- ============ Tab 1: Registration ============ -->
+    <section id="view-register" class="view" role="tabpanel" aria-labelledby="tab-register">
+      <!-- Form card -->
+      <div class="card card--narrow" id="register-card">
+        <div class="card__head">
+          <p class="eyebrow">Admit one</p>
+          <h1 class="card__title" id="event-title">Loading event…</h1>
+          <p class="card__sub" id="event-date">&nbsp;</p>
+        </div>
+
+        <form id="register-form" novalidate autocomplete="off">
+          <div class="field">
+            <label for="full_name">Full name</label>
+            <input type="text" id="full_name" name="full_name" placeholder="Ananya Rao" maxlength="100" />
+            <p class="field__error" id="err-full_name" role="alert"></p>
+          </div>
+
+          <div class="field">
+            <label for="email">College email</label>
+            <input type="email" id="email" name="email" placeholder="ananya@college.edu" maxlength="150" />
+            <p class="field__error" id="err-email" role="alert"></p>
+          </div>
+
+          <div class="field">
+            <label for="student_id">Student ID / USN</label>
+            <input type="text" id="student_id" name="student_id" placeholder="1XX23CS001" maxlength="30" />
+            <p class="field__error" id="err-student_id" role="alert"></p>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" id="register-btn">
+            <span class="btn__label">Generate my pass</span>
+            <span class="spinner" aria-hidden="true"></span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Digital pass (shown after success) -->
+      <div class="pass-wrap hidden" id="pass-wrap">
+        <article class="ticket" aria-label="Digital event pass">
+          <div class="ticket__top">
+            <div class="ticket__row">
+              <span class="ticket__brand"><svg aria-hidden="true"><use href="#logo" /></svg>GatePass</span>
+              <span class="badge badge--pending" id="t-status">Valid / Unchecked</span>
+            </div>
+            <h2 class="ticket__event" id="t-event">—</h2>
+            <p class="ticket__date" id="t-date">—</p>
+          </div>
+
+          <div class="ticket__divider" aria-hidden="true"></div>
+
+          <div class="ticket__body">
+            <div class="ticket__grid">
+              <div>
+                <span class="ticket__label">Attendee</span>
+                <span class="ticket__value" id="t-name">—</span>
+              </div>
+              <div>
+                <span class="ticket__label">Student ID</span>
+                <span class="ticket__value mono" id="t-sid">—</span>
+              </div>
+            </div>
+
+            <div class="ticket__code-box">
+              <span class="ticket__label">Pass code</span>
+              <span class="ticket__code" id="t-code">PASS-0000</span>
+              <button type="button" class="btn btn-ghost btn-sm" id="copy-btn">Copy code</button>
+            </div>
+          </div>
+        </article>
+
+        <p class="pass-hint">Show this code at the gate. Screenshot it — you'll need it on entry.</p>
+        <button type="button" class="btn btn-secondary" id="register-another-btn">Register another</button>
+      </div>
+    </section>
+
+    <!-- ============ Tab 2: Gate Verification Desk ============ -->
+    <section id="view-admin" class="view hidden" role="tabpanel" aria-labelledby="tab-admin">
+      <!-- Metrics -->
+      <div class="metrics">
+        <div class="metric">
+          <span class="metric__label">Total registered</span>
+          <span class="metric__value" id="m-total">0</span>
+          <span class="metric__sub" id="m-total-sub">&nbsp;</span>
+        </div>
+        <div class="metric metric--ok">
+          <span class="metric__label">Admitted / checked-in</span>
+          <span class="metric__value" id="m-admitted">0</span>
+          <span class="metric__sub" id="m-admitted-sub">&nbsp;</span>
+        </div>
+        <div class="metric metric--warn">
+          <span class="metric__label">Pending · remaining capacity</span>
+          <span class="metric__value" id="m-pending">0</span>
+          <span class="metric__sub" id="m-remaining">&nbsp;</span>
+        </div>
+      </div>
+
+      <!-- Activity charts -->
+      <section class="charts" id="charts" aria-label="Activity over time">
+        <div class="charts__head">
+          <div>
+            <h2 class="charts__title">Activity</h2>
+            <p class="charts__sub" id="slot-note">Waiting for the first registration…</p>
+          </div>
+          <div class="seg" id="bucket-seg" role="group" aria-label="Time slot size">
+            <button class="seg__btn is-active" data-bucket="auto">Auto</button>
+            <button class="seg__btn" data-bucket="5m">5 min</button>
+            <button class="seg__btn" data-bucket="15m">15 min</button>
+            <button class="seg__btn" data-bucket="1h">1 hour</button>
+            <button class="seg__btn" data-bucket="1d">1 day</button>
+          </div>
+        </div>
+
+        <div class="charts__grid">
+          <article class="chart-card">
+            <header class="chart-card__head">
+              <h3 class="chart-card__title">Registrations</h3>
+              <div class="chart-card__stats" id="stat-reg"></div>
+            </header>
+            <div class="chart" id="chart-reg">
+              <div class="chart__plot"></div>
+              <div class="chart__tip"></div>
+            </div>
+          </article>
+
+          <article class="chart-card">
+            <header class="chart-card__head">
+              <h3 class="chart-card__title">Gate admissions</h3>
+              <div class="chart-card__stats" id="stat-adm"></div>
+            </header>
+            <div class="chart" id="chart-adm">
+              <div class="chart__plot"></div>
+              <div class="chart__tip"></div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- Quick check -->
+      <form class="quick" id="quick-form" autocomplete="off">
+        <label for="quick-input" class="quick__label">Quick check</label>
+        <div class="quick__row">
+          <input type="text" id="quick-input" placeholder="Paste or type a pass code, e.g. PASS-A8F2, then press Enter" spellcheck="false" autocapitalize="characters" />
+          <button type="submit" class="btn btn-primary" id="quick-btn">Admit</button>
+        </div>
+      </form>
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="search">
+          <span class="search__icon" aria-hidden="true">⌕</span>
+          <input type="search" id="search-input" placeholder="Search name, student ID or pass code…" />
+        </div>
+        <div class="pills" role="group" aria-label="Filter by status">
+          <button class="pill is-active" data-filter="all">All</button>
+          <button class="pill" data-filter="admitted">Admitted</button>
+          <button class="pill" data-filter="pending">Pending</button>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="refresh-btn" title="Refresh from database">↻ Refresh</button>
+      </div>
+
+      <!-- Table -->
+      <div class="table-card">
+        <div class="table-scroll">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Attendee name</th>
+                <th>Student ID</th>
+                <th>Pass code</th>
+                <th>Registered</th>
+                <th>Status</th>
+                <th class="th-action">Action</th>
+              </tr>
+            </thead>
+            <tbody id="attendee-rows"></tbody>
+          </table>
+        </div>
+        <div class="empty hidden" id="empty-state">No attendees match.</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Toasts -->
+  <div class="toasts" id="toasts" aria-live="polite" aria-atomic="false"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+  <script src="charts.js"></script>
+</body>
+</html>
